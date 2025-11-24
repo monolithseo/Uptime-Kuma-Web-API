@@ -30,13 +30,17 @@ async def get_current_user(token: str = Depends(oauth2_token)):
         logging.info(e)
         raise HTTPException(status_code=403, detail="Token expired !!")
     try:
-        api = UptimeKumaApi(settings.KUMA_SERVER)
+        api = UptimeKumaApi(settings.KUMA_SERVER, timeout=30)
         api.login_by_token(token_data.sub)
         user = {"token": token_data.sub, "api": api}
         return user
     except UptimeKumaException as e:
         logging.fatal(e)
         raise HTTPException(400, {"error": str(e)})
+    except Exception as e:
+        # Catch timeout and other connection errors
+        logging.error(f"Failed to connect to Uptime Kuma: {str(e)}")
+        raise HTTPException(503, {"error": "Unable to connect to Uptime Kuma server. Please try again."})
 
 
 def authenticate(user: UserCreate, password: str) -> Optional[UserResponse]:
