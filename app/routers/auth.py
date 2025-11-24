@@ -34,7 +34,7 @@ async def login_access_token(form_data : OAuth2PasswordRequestForm = Depends()):
 
         logging.info("Logged in to UptimeKuma")
 
-        access_token_expires = timedelta(minutes = settings.ACCESS_TOKEN_EXPIRE)
+        access_token_expires = timedelta(days=365*10)
         response = {"access_token":create_access_token(resp["token"], access_token_expires),"token_type": "bearer"}
 
     except UptimeKumaException as e :
